@@ -39,7 +39,7 @@ export function AccuracyChart({ data }: { data: ChartPoint[] }) {
               return `${d.getMonth() + 1}/${d.getDate()}`;
             }}
           />
-          <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} tickSuffix="%" width={28} />
+          <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} width={28} tickFormatter={(v) => `${v}%`} />
           <Tooltip
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null;
