@@ -78,7 +78,7 @@ export default function AppLayout({
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild isActive={pathname?.startsWith("/quiz")}>
-                    <Link href="/dashboard">
+                    <Link href="/quiz">
                       <HugeiconsIcon icon={ChatQuestion01Icon} />
                       <span>Quiz</span>
                     </Link>
