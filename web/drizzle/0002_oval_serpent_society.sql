@@ -1,0 +1,1 @@
+ALTER TYPE "public"."subject" ADD VALUE 'English Language';
