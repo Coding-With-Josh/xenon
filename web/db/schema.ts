@@ -51,6 +51,8 @@ export const users = pgTable("users", {
   // Xenon profile
   classLevel: classLevelEnum("class_level"),
   subjects: json("subjects").$type<string[]>().default([]),
+  examType: text("exam_type"), // WAEC, JAMB, etc.
+  examDate: timestamp("exam_date", { mode: "date" }),
   passwordHash: text("password_hash"), // for credentials provider
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
@@ -99,6 +101,21 @@ export const curriculum = pgTable("curriculum", {
   topic: text("topic").notNull(),
   subtopics: json("subtopics").$type<string[]>().default([]),
   classLevels: json("class_levels").$type<string[]>().notNull(), // e.g. ["SS1", "SS2"]
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const studyPlans = pgTable("study_plans", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  planDate: timestamp("plan_date", { mode: "date" }).notNull(), // Day of the plan
+  tasks: json("tasks").$type<{
+    subject: string;
+    topic: string;
+    type: "notes" | "quiz" | "practice";
+    completed: boolean;
+  }[]>().notNull().default([]),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 

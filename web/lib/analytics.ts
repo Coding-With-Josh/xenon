@@ -60,6 +60,15 @@ export async function getAnalytics(userId: string) {
   const totalQuestions = sessions.reduce((sum, s) => sum + (s.totalQuestions ?? 0), 0);
   const overallAccuracy = totalQuestions ? totalCorrect / totalQuestions : 0;
 
+  const strengths = Object.entries(topicStats)
+    .filter(([, s]) => s.total >= 5 && s.correct / s.total >= 0.8)
+    .map(([topic]) => topic);
+
+  const examReadiness = Math.min(
+    100,
+    Math.round(overallAccuracy * 80 + (strengths.length * 5) + (Object.keys(topicStats).length * 2))
+  );
+
   const dates = new Set(sessions.map((s) => s.createdAt?.toISOString().slice(0, 10)).filter(Boolean));
   const sortedDates = Array.from(dates).sort();
   let streak = 0;
@@ -77,6 +86,8 @@ export async function getAnalytics(userId: string) {
     totalQuestions,
     totalCorrect,
     overallAccuracy: Math.round(overallAccuracy * 100),
+    examReadiness,
+    strengths,
     weakTopics,
     topicStats: Object.fromEntries(
       Object.entries(topicStats).map(([k, v]) => [

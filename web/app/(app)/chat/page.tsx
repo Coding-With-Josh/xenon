@@ -61,10 +61,52 @@ export default function ChatPage() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [simplifying, setSimplifying] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  async function handleSimplify() {
+    if (!message.trim() || loading) return;
+    const contentToSimplify = message.trim();
+    setMessage("");
+    setMessages((prev) => [...prev, { role: "user", content: `Break this down for me:\n${contentToSimplify.slice(0, 200)}...` }]);
+    setLoading(true);
+    setSimplifying(true);
+
+    try {
+      const res = await fetch("/api/simplify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: contentToSimplify }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setMessages((prev) => [...prev, { role: "assistant", content: data.result }]);
+
+      // Save to session if exists
+      if (currentSessionId != null) {
+        await fetch(`/api/chat/sessions/${currentSessionId}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: "user", content: `Simplify: ${contentToSimplify.slice(0, 100)}` }),
+        });
+        await fetch(`/api/chat/sessions/${currentSessionId}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: "assistant", content: data.result }),
+        });
+      }
+    } catch (err) {
+      const error = err as Error;
+      setMessages((prev) => [...prev, { role: "assistant", content: `**Error:** ${error.message}` }]);
+    } finally {
+      setLoading(false);
+      setSimplifying(false);
+    }
+  }
 
   async function loadSessions() {
     try {
@@ -207,7 +249,7 @@ export default function ChatPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ role: "assistant", content: "Something went wrong. Please try again." }),
-        }).catch(() => {});
+        }).catch(() => { });
       }
     } finally {
       setLoading(false);
@@ -255,9 +297,8 @@ export default function ChatPage() {
           {messages.map((m, i) => (
             <div
               key={i}
-              className={`rounded-lg p-3 ${
-                m.role === "user" ? "bg-primary text-primary-foreground ml-8" : "bg-muted mr-8"
-              }`}
+              className={`rounded-lg p-3 ${m.role === "user" ? "bg-primary text-primary-foreground ml-8" : "bg-muted mr-8"
+                }`}
             >
               {m.role === "user" ? (
                 <div className="whitespace-pre-wrap text-sm">{m.content}</div>
@@ -271,15 +312,24 @@ export default function ChatPage() {
           )}
           <div ref={bottomRef} />
         </div>
-        <form onSubmit={handleSubmit} className="border-t p-4">
+        <form onSubmit={handleSubmit} className="border-t p-4 space-y-2">
           <div className="flex gap-2">
             <Input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ask Xe anything..."
+              placeholder="Ask Xe anything or paste hard content to simplify..."
               disabled={loading}
               className="flex-1"
             />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleSimplify}
+              disabled={loading || !message.trim()}
+              title="Break this down for me"
+            >
+              🪄 Break it down
+            </Button>
             <Button type="submit" disabled={loading || !message.trim()}>
               Send
             </Button>
