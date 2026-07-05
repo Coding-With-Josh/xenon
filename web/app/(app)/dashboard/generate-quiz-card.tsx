@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { BrainIcon, RocketIcon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,7 +47,7 @@ export function GenerateQuizCard() {
     <Card className="shadow-lg border-primary/10">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <span>🧠</span> AI Study Planner
+          <HugeiconsIcon icon={BrainIcon} size={20} /> Generate Quiz
         </CardTitle>
         <CardDescription>Generate a custom quiz or use a natural language prompt.</CardDescription>
       </CardHeader>
@@ -56,13 +58,24 @@ export function GenerateQuizCard() {
               {isPrompt ? "What should I test you on?" : "Topic or Concept"}
             </label>
             <div className="flex gap-2">
-              <Input
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder={isPrompt ? "e.g. Give me 10 hard WAEC questions on electrolysis" : "e.g. Photosynthesis, Newton's Laws"}
-                disabled={loading}
-                className="flex-1"
-              />
+              {isPrompt ? (
+                <textarea
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder="e.g. Give me 10 hard WAEC questions on electrolysis"
+                  disabled={loading}
+                  className="flex-1 min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-ring focus:ring-2 placeholder:text-muted-foreground resize-none"
+                  rows={3}
+                />
+              ) : (
+                <Input
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder="e.g. Photosynthesis, Newton's Laws"
+                  disabled={loading}
+                  className="flex-1"
+                />
+              )}
               <Button 
                 type="button" 
                 variant="outline" 
@@ -122,7 +135,7 @@ export function GenerateQuizCard() {
           )}
 
           <Button type="submit" className="w-full h-12 text-lg" disabled={loading || !topic.trim()}>
-            {loading ? "Generating Quiz..." : "🚀 Generate Study Session"}
+            {loading ? "Generating Quiz..." : <><HugeiconsIcon icon={RocketIcon} size={16} /> Generate Study Session</>}
           </Button>
         </form>
       </CardContent>

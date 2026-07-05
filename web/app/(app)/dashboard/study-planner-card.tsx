@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { BrainIcon, RocketIcon } from "@hugeicons/core-free-icons";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -65,7 +67,7 @@ export function StudyPlannerCard() {
         <div className="flex justify-between items-center">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <span>🧠</span> AI Study Planner
+              <HugeiconsIcon icon={BrainIcon} size={20} /> AI Study Planner
             </CardTitle>
             <CardDescription>Your personalized daily study goal.</CardDescription>
           </div>
@@ -101,7 +103,7 @@ export function StudyPlannerCard() {
             <p className="text-sm text-muted-foreground mb-4">No plan for today yet.</p>
             {error && <p className="text-xs text-destructive mb-4">{error}</p>}
             <Button variant="outline" onClick={generatePlan} disabled={generating}>
-              {generating ? "Generating..." : "🚀 Auto-Generate Timetable"}
+              {generating ? "Generating..." : <><HugeiconsIcon icon={RocketIcon} size={16} /> Auto-Generate Timetable</>}
             </Button>
           </div>
         )}

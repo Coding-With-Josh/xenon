@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getAnalytics } from "@/lib/analytics";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ValidationIcon, DangerIcon } from "@hugeicons/core-free-icons";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GenerateQuizCard } from "./generate-quiz-card";
@@ -137,7 +139,7 @@ export default async function DashboardPage() {
                 {a.strengths.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-xs font-bold text-green-600 dark:text-green-400 flex items-center gap-1">
-                      <span>✔</span> STRONG IN
+                      <HugeiconsIcon icon={ValidationIcon} size={12} /> STRONG IN
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {a.strengths.slice(0, 3).map(s => (
@@ -149,7 +151,7 @@ export default async function DashboardPage() {
                 {a.weakTopics.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-xs font-bold text-destructive flex items-center gap-1">
-                      <span>❗</span> WEAK IN
+                      <HugeiconsIcon icon={DangerIcon} size={12} /> WEAK IN
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {a.weakTopics.slice(0, 3).map(w => (

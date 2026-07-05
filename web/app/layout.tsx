@@ -10,18 +10,19 @@ import { cn } from "@/lib/utils";
 
 const sfProRounded = localFont({
   src: [
-    { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Ultralight.otf", weight: "200", style: "normal" },
-    { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Thin.otf", weight: "300", style: "normal" },
-    { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Light.otf", weight: "350", style: "normal" },
-    { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Regular.otf", weight: "400", style: "normal" },
     { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Medium.otf", weight: "500", style: "normal" },
     { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Semibold.otf", weight: "600", style: "normal" },
     { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Bold.otf", weight: "700", style: "normal" },
+    { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Regular.otf", weight: "400", style: "normal" },
+    { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Light.otf", weight: "350", style: "normal" },
     { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Heavy.otf", weight: "800", style: "normal" },
     { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Black.otf", weight: "900", style: "normal" },
+    { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Ultralight.otf", weight: "200", style: "normal" },
+    { path: "../assets/SF Pro Rounded/SF-Pro-Rounded-Thin.otf", weight: "300", style: "normal" },
   ],
   variable: "--font-sans",
   display: "swap",
+  preload: true,
 })
 const serif = Instrument_Serif({ subsets: ['latin'], variable: '--font-serif', weight: ['400'] })
 

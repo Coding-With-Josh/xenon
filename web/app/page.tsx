@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { FadeIn } from "@/components/fade-in";
 import { db, chatMessages, generatedContent, quizSessions, users } from "@/db";
 import { count, eq } from "drizzle-orm";
 
@@ -101,7 +102,7 @@ export default async function HomePage() {
         <div className="absolute blur-md bottom-0 left-0 right-0 h-[30%] bg-[radial-gradient(circle_at_9%_82%,#9a63ff_0_0.8%,transparent_1%),radial-gradient(circle_at_17%_77%,#d5b2ff_0_0.7%,transparent_1%),radial-gradient(circle_at_29%_78%,#8d58f6_0_0.9%,transparent_1.2%),radial-gradient(circle_at_48%_80%,#faf6ff_0_0.65%,transparent_0.9%),radial-gradient(circle_at_69%_76%,#b16ff3_0_0.9%,transparent_1.2%),radial-gradient(circle_at_82%_81%,#c6a0ff_0_0.7%,transparent_0.95%),radial-gradient(circle_at_92%_76%,#7a48ea_0_0.85%,transparent_1.1%)] opacity-95 dark:bg-[radial-gradient(circle_at_9%_82%,#7a48ea_0_0.8%,transparent_1%),radial-gradient(circle_at_17%_77%,#9a63ff_0_0.7%,transparent_1%),radial-gradient(circle_at_29%_78%,#6a38d0_0_0.9%,transparent_1.2%),radial-gradient(circle_at_48%_80%,#4a3880_0_0.65%,transparent_0.9%),radial-gradient(circle_at_69%_76%,#8d58f6_0_0.9%,transparent_1.2%),radial-gradient(circle_at_82%_81%,#7a48ea_0_0.7%,transparent_0.95%),radial-gradient(circle_at_92%_76%,#5a28c0_0_0.85%,transparent_1.1%)]" />
         <div className="absolute blur-md bottom-0 left-0 right-0 h-[24%] bg-[linear-gradient(180deg,transparent,rgba(40,28,92,0.44))] backdrop-blur-[1px] dark:bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.6))]" />
 
-        <nav className="scale-120 relative z-10 mx-auto mt-6 flex w-[min(94vw,640px)] items-center justify-between rounded-full border border-white/70 bg-white/88 px-3 py-2 text-[11px] shadow-[0_16px_45px_rgba(49,36,90,0.16)] backdrop-blur-md dark:border-white/10 dark:bg-[#1a1630]/88 dark:shadow-[0_16px_45px_rgba(0,0,0,0.4)]">
+        <nav className="scale-120 relative z-10 mx-auto mt-6 flex w-[min(94vw,640px)] items-center justify-between rounded-full border border-white/70 bg-white/88 px-3 py-2 text-[11px] shadow-[0_16px_45px_rgba(49,36,90,0.16)] backdrop-blur-md dark:border-white/10 dark:bg-[#1a1630]/88 dark:shadow-[0_16px_45px_rgba(0,0,0,0.4)] animate-[fade-in_0.6s_ease-out]">
           <Link href="/" className="flex items-center gap-1.5 font-semibold">
             <span className="grid size-4 place-items-center rounded-full bg-[#5a2dff] text-[8px] text-white dark:bg-[#7a4dff]">✦</span>
             Xenon
@@ -125,15 +126,15 @@ export default async function HomePage() {
             AI exam prep for WAEC & JAMB ✦
           </div> */}
 
-          <h1 className="max-w-5xl text-balance text-5xl font-bold leading-[0.92] tracking-[-0.05em] text-[#191923] drop-shadow-[0_1px_18px_rgba(255,255,255,0.36)] sm:text-7xl lg:text-[7rem] dark:text-[#e8e4f2] dark:drop-shadow-[0_1px_18px_rgba(100,70,200,0.4)]">
+          <h1 className="max-w-5xl text-balance text-5xl font-bold leading-[0.92] tracking-[-0.05em] text-[#191923] drop-shadow-[0_1px_18px_rgba(255,255,255,0.36)] sm:text-7xl lg:text-[7rem] dark:text-[#e8e4f2] dark:drop-shadow-[0_1px_18px_rgba(100,70,200,0.4)] animate-[fade-in-up_0.7s_cubic-bezier(0.16,1,0.3,1)_0.15s_both]">
             Ignite your dreams.
           </h1>
-          <p className="mt-5 max-w-2xl text-balance text-base font-semibold leading-6 text-[#23242c]/90 sm:text-lg dark:text-[#c8c4d8]/80">
+          <p className="mt-5 max-w-2xl text-balance text-base font-semibold leading-6 text-[#23242c]/90 sm:text-lg dark:text-[#c8c4d8]/80 animate-[fade-in-up_0.7s_cubic-bezier(0.16,1,0.3,1)_0.3s_both]">
             Learn smarter with Xe AI, notes, quizzes, and exam practice built around your class level.
             So you can take a breath.
           </p>
 
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row animate-[fade-in-up_0.7s_cubic-bezier(0.16,1,0.3,1)_0.45s_both]">
             <Link href="/signup" className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#151720] shadow-[0_18px_45px_rgba(49,36,90,0.22)] transition hover:-translate-y-0.5 hover:bg-[#faf7ff] dark:bg-[#e8e4f0] dark:text-[#0b0a12] dark:shadow-[0_18px_45px_rgba(0,0,0,0.4)] dark:hover:bg-white">
               {session?.user ? "Go to dashboard" : "Get Started"} →
             </Link>
@@ -151,6 +152,7 @@ export default async function HomePage() {
         <div className="absolute inset-x-[12%] top-0 h-40 bg-[radial-gradient(circle,rgba(255,255,255,0.8),transparent_70%)] blur-3xl dark:bg-[radial-gradient(circle,rgba(100,70,200,0.1),transparent_70%)]" />
 
         <div className="relative mx-auto flex h-full w-full max-w-[1240px] flex-col justify-between">
+          <FadeIn>
           <div className="grid gap-8 lg:grid-cols-[1.55fr_0.95fr] lg:items-start">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#ece7f8] bg-white/80 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.02em] text-[#7652d8] shadow-[0_10px_30px_rgba(0,0,0,0.04)] backdrop-blur-md dark:border-white/8 dark:bg-[#18152e]/80 dark:text-[#b290ff] dark:shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
@@ -172,10 +174,11 @@ export default async function HomePage() {
             </div>
           </div>
 
+          </FadeIn>
           <div className="relative mt-8 grid flex-1 gap-3 lg:grid-cols-[0.82fr_1.48fr_0.82fr_0.82fr] lg:items-start">
             {featureCards.map((card, index) => (
+              <FadeIn key={card.number} delay={index * 100}>
               <article
-                key={card.number}
                 className={[
                   "relative overflow-hidden rounded-[28px] border border-[#f0ecfa] bg-white/92 px-6 pb-6 pt-6 shadow-[0_18px_50px_rgba(15,18,31,0.05)] dark:border-white/8 dark:bg-[#1a1730]/92 dark:shadow-[0_18px_50px_rgba(0,0,0,0.3)]",
                   card.featured ? "min-h-[440px] lg:min-h-[470px]" : "min-h-[240px] lg:min-h-[360px]",
@@ -224,6 +227,7 @@ export default async function HomePage() {
 
                 {index === 0 ? <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.88))] dark:bg-[linear-gradient(180deg,transparent,rgba(26,23,48,0.88))]" /> : null}
               </article>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -232,16 +236,18 @@ export default async function HomePage() {
       <section className="relative overflow-hidden bg-[#f4f0ff] px-4 py-16 sm:px-5 lg:px-6 lg:py-20 dark:bg-[#0f0b1a]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.82),transparent_34%),linear-gradient(180deg,rgba(128,91,255,0.08),transparent_36%)] dark:bg-[radial-gradient(circle_at_top,rgba(40,25,80,0.4),transparent_34%),linear-gradient(180deg,rgba(128,91,255,0.12),transparent_36%)]" />
         <div className="relative mx-auto max-w-[1240px]">
+          <FadeIn>
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-balance text-xl font-medium leading-9 text-[#2b2540] sm:text-2xl sm:leading-10 dark:text-[#ccc8e0]">
               Xenon helps students study smarter with AI-powered notes, quizzes, tutoring, and exam prep built for WAEC and JAMB.
             </p>
           </div>
+          </FadeIn>
 
           <div className="mt-10 grid gap-3 md:grid-cols-2 xl:grid-cols-[0.95fr_0.95fr_1.15fr_0.95fr]">
             {metrics.map((metric, index) => (
+              <FadeIn key={metric.label} delay={index * 100}>
               <article
-                key={metric.label}
                 className={[
                   "relative rounded-[28px] border border-[#ece6ff] bg-white/88 px-5 pb-6 pt-20 shadow-[0_20px_50px_rgba(57,33,125,0.06)] backdrop-blur-sm sm:px-6 dark:border-white/8 dark:bg-[#1a1730]/88 dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)]",
                   index === 2 ? "xl:min-h-[280px]" : "xl:min-h-[280px]",
@@ -258,6 +264,7 @@ export default async function HomePage() {
                   {metric.copy}
                 </p>
               </article>
+              </FadeIn>
             ))}
           </div>
         </div>
