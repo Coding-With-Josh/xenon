@@ -59,7 +59,37 @@ export function RecentSessionsTable({ flows }: { flows: FlowSummary[] }) {
           </Link>
         )}
       </div>
-      <div className="overflow-hidden rounded-xl border border-border">
+
+      {/* Mobile: card-per-row layout */}
+      <div className="space-y-2 sm:hidden">
+        {flows.map((flow) => (
+          <div
+            key={flow.slug}
+            className="rounded-xl border border-border bg-card px-4 py-3 flex flex-col gap-2"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <Link
+                href={`/flow/${flow.slug}`}
+                className="font-medium text-sm text-foreground truncate transition-colors hover:text-primary"
+              >
+                {flow.topic}
+              </Link>
+              {statusPill(flow.status)}
+            </div>
+            <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+              <span className="truncate">{flow.subject}</span>
+              <span>
+                {flow.status === "in_progress"
+                  ? `${flow.currentSubsectionIndex + 1}/${flow.totalSubsections}`
+                  : "Done"}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tablet / Desktop: full table */}
+      <div className="hidden overflow-hidden rounded-xl border border-border sm:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/30">

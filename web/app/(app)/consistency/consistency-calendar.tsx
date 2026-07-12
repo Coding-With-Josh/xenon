@@ -5,11 +5,22 @@ function monthLabel(dateStr: string): string {
   return d.toLocaleDateString("en-US", { month: "short" });
 }
 
-export function ConsistencyCalendar({ days }: { days: ConsistencyDay[] }) {
+export function ConsistencyCalendar({
+  days,
+  maxWeeks,
+}: {
+  days: ConsistencyDay[];
+  maxWeeks?: number;
+}) {
   // Build a 7-row (Mon-Sun) grid grouped by week columns.
-  const weeks: ConsistencyDay[][] = [];
+  let weeks: ConsistencyDay[][] = [];
   for (let i = 0; i < days.length; i += 7) {
     weeks.push(days.slice(i, i + 7));
+  }
+
+  // When a window is requested, keep only the most recent N weeks.
+  if (maxWeeks && weeks.length > maxWeeks) {
+    weeks = weeks.slice(weeks.length - maxWeeks);
   }
 
   // Month labels along the top, placed at the column where the month starts.

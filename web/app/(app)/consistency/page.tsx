@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getConsistency } from "@/lib/consistency";
-import { ConsistencyCalendar } from "./consistency-calendar";
+import { ConsistencyCalendarCard } from "./consistency-calendar-card";
 
 export default async function ConsistencyPage() {
   const session = await getServerSession(authOptions);
@@ -53,7 +53,7 @@ export default async function ConsistencyPage() {
       {/* Calendar */}
       <section className="rounded-2xl border border-border bg-card p-6">
         <h2 className="text-sm font-semibold text-foreground mb-4">Last 12 weeks</h2>
-        <ConsistencyCalendar days={data.days} />
+        <ConsistencyCalendarCard days={data.days} />
         <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
           <span className="inline-block size-3 rounded bg-primary/70" />
           Studied

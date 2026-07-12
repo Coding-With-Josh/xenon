@@ -57,8 +57,25 @@ const secondarySections = [
   },
 ];
 
-export default function Sidebar() {
+type SidebarProps = {
+  /** When true (e.g. inside the mobile drawer) force full-width expanded layout. */
+  forceExpanded?: boolean;
+  /** Optional callback fired when a nav item is clicked (used to close the drawer). */
+  onNavigate?: () => void;
+};
+
+type SectionType = (typeof sections)[number];
+type NavItemType = SectionType["items"][number];
+
+export default function Sidebar({ forceExpanded = false, onNavigate }: SidebarProps) {
   const pathname = usePathname();
+
+  // On tablet (sm, not lg) the sidebar collapses to icon-only unless forceExpanded.
+  const expanded = forceExpanded;
+  const widthClass = expanded ? "w-[15rem]" : "w-16 lg:w-[15rem]";
+  const labelClass = expanded ? "inline" : "hidden lg:inline";
+  const sectionLabelClass = expanded ? "block" : "hidden lg:block";
+  const itemJustify = expanded ? "justify-start" : "justify-center lg:justify-start";
 
   function isActive(href: string): boolean {
     if (href === "/dashboard") {
@@ -67,42 +84,47 @@ export default function Sidebar() {
     return pathname === href || pathname?.startsWith(href + "/");
   }
 
-  function renderNavItems(items: { label: string; href: string; icon: any; comingSoon?: boolean }[]) {
+  function renderNavItems(items: NavItemType[]) {
     return items.map((item) => {
       const active = isActive(item.href);
-      const Comp = item.comingSoon ? "span" : Link;
+      const className = `flex tracking-[0.005em] items-center gap-3 rounded-lg px-4 py-2 text-xs transition-colors ${itemJustify} ${
+        item.comingSoon
+          ? "text-muted-foreground/50 cursor-not-allowed"
+          : active
+            ? "bg-black/5 dark:bg-white/10 font-medium text-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
+      }`;
+      if (item.comingSoon) {
+        return (
+          <li key={item.href}>
+            <span className={className}>
+              <HugeiconsIcon icon={item.icon} size={16} className="shrink-0" />
+              <span className={`${labelClass}`}>{item.label}</span>
+              <span className={`ml-auto text-[10px] font-medium text-muted-foreground/40 ${labelClass}`}>
+                Soon
+              </span>
+            </span>
+          </li>
+        );
+      }
       return (
         <li key={item.href}>
-          <Comp
-            href={item.comingSoon ? undefined : item.href}
-            className={`flex tracking-[0.005em] items-center gap-3 rounded-lg px-4 py-2 text-xs transition-colors ${
-              item.comingSoon
-                ? "text-muted-foreground/50 cursor-not-allowed"
-                : active
-                  ? "bg-black/5 dark:bg-white/10 font-medium text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
-            }`}
-          >
-            <HugeiconsIcon icon={item.icon} size={16} />
-            {item.label}
-            {item.comingSoon && (
-              <span className="ml-auto text-[10px] font-medium text-muted-foreground/40">Soon</span>
-            )}
-          </Comp>
+          <Link href={item.href} onClick={onNavigate} className={className}>
+            <HugeiconsIcon icon={item.icon} size={16} className="shrink-0" />
+            <span className={`${labelClass}`}>{item.label}</span>
+          </Link>
         </li>
       );
     });
   }
 
-  function renderSection(section: { label: string; items: { label: string; href: string; icon: any; comingSoon?: boolean }[] }) {
+  function renderSection(section: SectionType) {
     const sectionActive = section.items.some((item) => isActive(item.href));
     return (
       <div key={section.label}>
         <span
-          className={`text-[12px] font-semibold tracking-wide uppercase py-1 block transition-colors ${
-            sectionActive
-              ? "text-foreground"
-              : "text-muted-foreground"
+          className={`text-[12px] font-semibold tracking-wide uppercase py-1 block transition-colors ${sectionLabelClass} ${
+            sectionActive ? "text-foreground" : "text-muted-foreground"
           }`}
         >
           {section.label}
@@ -115,32 +137,32 @@ export default function Sidebar() {
   }
 
   return (
-    <div className="w-[15rem] h-full flex flex-col gap-6 px-6">
+    <div className={`h-full flex flex-col gap-6 px-6 ${widthClass}`}>
       {/* Logo */}
-      <Link href="/dashboard" className="pt-2">
-        <span className="font-serif text-2xl font-semibold tracking-tight">Xenon</span>
+      <Link href="/dashboard" onClick={onNavigate} className="pt-2">
+        <span className={`font-serif text-2xl font-semibold tracking-tight ${labelClass}`}>
+          Xenon
+        </span>
       </Link>
 
       {/* Home */}
       <Link
         href="/dashboard"
-        className={`mt-3 flex tracking-[0.005em] items-center gap-3 rounded-lg px-4 py-2 text-xs transition-colors ${
+        onClick={onNavigate}
+        className={`mt-3 flex tracking-[0.005em] items-center gap-3 rounded-lg px-4 py-2 text-xs transition-colors ${itemJustify} ${
           pathname === "/dashboard" || pathname === "/"
             ? "bg-black/5 dark:bg-white/10 font-medium text-foreground"
             : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
         }`}
       >
-        <HugeiconsIcon icon={Home01Icon} size={16} />
-        Home
+        <HugeiconsIcon icon={Home01Icon} size={16} className="shrink-0" />
+        <span className={`${labelClass}`}>Home</span>
       </Link>
 
       {/* Primary sections */}
       <nav className="flex flex-col gap-4">
         {sections.map(renderSection)}
       </nav>
-
-      {/* Divider */}
-      {/* <div className="border-t border-border" /> */}
 
       {/* Secondary sections */}
       <nav className="flex flex-col gap-4">

@@ -260,6 +260,11 @@ function QuestionCard({
   const optionLabels = ["A", "B", "C", "D"];
   const options = question.options ?? [];
 
+  // Per-question runtime check (per the responsiveness plan): keep the 2x2 grid
+  // unless an option's text is long enough to risk uneven row heights.
+  const longOption = options.some((o) => o.replace(/^[A-D]\)\s*/, "").length > 60);
+  const gridCols = longOption ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2";
+
   return (
     <div className="rounded-xl border p-5 space-y-3">
       <p className="text-sm font-medium leading-relaxed">
@@ -267,7 +272,7 @@ function QuestionCard({
         {question.question}
       </p>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className={`grid ${gridCols} gap-2`}>
         {options.map((option, oi) => {
           const label = optionLabels[oi];
           const isSelected = selected?.toUpperCase().slice(0, 1) === label;

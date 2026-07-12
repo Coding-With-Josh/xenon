@@ -73,8 +73,8 @@ export function FlowRow({ flow, variant, onRefresh }: FlowRowProps) {
 
   if (variant === "in-progress") {
     return (
-      <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-3.5 transition-colors hover:bg-muted/30">
-        <div className="flex items-center gap-4 min-w-0 flex-1">
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-card px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 transition-colors hover:bg-muted/30">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           {/* Subject badge */}
           <span className="rounded-md bg-primary/10 px-2 py-1 text-[11px] font-semibold text-primary shrink-0">
             {flow.subject}
@@ -101,18 +101,18 @@ export function FlowRow({ flow, variant, onRefresh }: FlowRowProps) {
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2 shrink-0 ml-4">
+        {/* Actions — full-width button pair beneath on mobile */}
+        <div className="flex items-center gap-2 shrink-0 sm:ml-4">
           <Link
             href={`/flow/${flow.slug}`}
-            className="rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="flex-1 sm:flex-none rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 min-h-[40px] flex items-center justify-center"
           >
             Resume
           </Link>
           <button
             onClick={handleRestart}
             disabled={restarting || deleting}
-            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted disabled:opacity-50"
+            className="flex-1 sm:flex-none rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted disabled:opacity-50 min-h-[40px]"
           >
             {restarting ? "..." : "Restart"}
           </button>
@@ -121,7 +121,7 @@ export function FlowRow({ flow, variant, onRefresh }: FlowRowProps) {
             disabled={deleting}
             aria-label="Clear flow"
             title="Clear flow"
-            className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-destructive hover:bg-destructive/10 disabled:opacity-50"
+            className="rounded-lg border border-border px-2.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-destructive hover:bg-destructive/10 disabled:opacity-50 min-h-[40px]"
           >
             {deleting ? <Spinner size={14} /> : "Clear"}
           </button>
@@ -141,8 +141,8 @@ export function FlowRow({ flow, variant, onRefresh }: FlowRowProps) {
 
   if (variant === "completed") {
     return (
-      <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-3.5">
-        <div className="flex items-center gap-4 min-w-0 flex-1">
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-card px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <span className="rounded-md bg-green-500/10 px-2 py-1 text-[11px] font-semibold text-green-600 dark:text-green-400 shrink-0">
             {flow.subject}
           </span>
@@ -157,16 +157,16 @@ export function FlowRow({ flow, variant, onRefresh }: FlowRowProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 ml-4">
+        <div className="flex items-center gap-2 shrink-0 sm:ml-4">
           <Link
             href={`/flow/${flow.slug}`}
-            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted"
+            className="flex-1 sm:flex-none rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted min-h-[40px] flex items-center justify-center"
           >
             View notes
           </Link>
           <Link
             href={`/flow/${flow.slug}`}
-            className="rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="flex-1 sm:flex-none rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 min-h-[40px] flex items-center justify-center"
           >
             Flow Replay
           </Link>
