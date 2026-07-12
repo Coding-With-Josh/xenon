@@ -3,7 +3,7 @@
 import { useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
-import { Dialog } from "radix-ui";
+import * as Dialog from "@radix-ui/react-dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Home01Icon,
