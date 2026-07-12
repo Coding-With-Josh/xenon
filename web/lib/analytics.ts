@@ -1,10 +1,13 @@
 import { db } from "@/db";
-import { quizSessions, questionAttempts, generatedContent } from "@/db/schema";
+import { quizSessions, questionAttempts, generatedContent, curriculum } from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 
 const WEAK_THRESHOLD = 0.6;
+const PRIOR_WEIGHT = 15;
+const PRIOR_MEAN = 0.5;
+const MIN_QUESTIONS = 20;
 
-export async function getAnalytics(userId: string) {
+export async function getAnalytics(userId: string, classLevel?: string) {
   const sessions = await db
     .select({
       id: quizSessions.id,
@@ -58,16 +61,34 @@ export async function getAnalytics(userId: string) {
 
   const totalCorrect = sessions.reduce((sum, s) => sum + (s.score ?? 0), 0);
   const totalQuestions = sessions.reduce((sum, s) => sum + (s.totalQuestions ?? 0), 0);
-  const overallAccuracy = totalQuestions ? totalCorrect / totalQuestions : 0;
+  const rawAccuracy = totalQuestions ? totalCorrect / totalQuestions : 0;
+
+  // Bayesian smoothing: blend raw accuracy toward neutral prior when sample is small
+  const adjustedAccuracy = (totalCorrect + PRIOR_WEIGHT * PRIOR_MEAN) / (totalQuestions + PRIOR_WEIGHT);
 
   const strengths = Object.entries(topicStats)
     .filter(([, s]) => s.total >= 5 && s.correct / s.total >= 0.8)
     .map(([topic]) => topic);
 
-  const examReadiness = Math.min(
-    100,
-    Math.round(overallAccuracy * 80 + (strengths.length * 5) + (Object.keys(topicStats).length * 2))
-  );
+  // Total syllabus topics across all subjects, filtered by class level
+  let totalSyllabusTopics = 0;
+  if (classLevel) {
+    const allTopics = await db
+      .select({ classLevels: curriculum.classLevels })
+      .from(curriculum);
+    totalSyllabusTopics = allTopics.filter((r) => {
+      const levels = (r.classLevels as string[]) ?? [];
+      return levels.includes(classLevel);
+    }).length;
+  }
+  const distinctTopicsAttempted = Object.keys(topicStats).length;
+  const coverageRatio = totalSyllabusTopics > 0 ? distinctTopicsAttempted / totalSyllabusTopics : 0;
+
+  const examReadiness = totalQuestions < MIN_QUESTIONS
+    ? null
+    : Math.min(100, Math.round(adjustedAccuracy * 70 + coverageRatio * 15 + strengths.length * 3));
+
+  const overallAccuracy = Math.round(rawAccuracy * 100);
 
   const dates = new Set(sessions.map((s) => s.createdAt?.toISOString().slice(0, 10)).filter(Boolean));
   const sortedDates = Array.from(dates).sort();
@@ -85,10 +106,12 @@ export async function getAnalytics(userId: string) {
     totalQuizzes: sessions.length,
     totalQuestions,
     totalCorrect,
-    overallAccuracy: Math.round(overallAccuracy * 100),
+    overallAccuracy,
     examReadiness,
     strengths,
     weakTopics,
+    totalSyllabusTopics,
+    distinctTopicsAttempted,
     topicStats: Object.fromEntries(
       Object.entries(topicStats).map(([k, v]) => [
         k,
