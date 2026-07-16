@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { sql } from "drizzle-orm";
 import { db } from "./index";
 import { curriculum } from "./schema";
 
@@ -38,7 +39,11 @@ const curriculumSeed = [
 
 async function seed() {
   console.log("Seeding curriculum...");
-  await db.insert(curriculum).values(curriculumSeed);
+  // Idempotent insert: skip rows that already exist for the same subject+topic.
+  await db
+    .insert(curriculum)
+    .values(curriculumSeed)
+    .onConflictDoNothing({ where: sql`(subject, topic) IS NOT NULL` });
   console.log("Curriculum seed complete.");
   process.exit(0);
 }

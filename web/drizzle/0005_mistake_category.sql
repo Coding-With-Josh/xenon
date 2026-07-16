@@ -1,0 +1,2 @@
+CREATE TYPE "public"."mistake_category" AS ENUM('concept', 'calculation', 'formula', 'reading', 'careless');--> statement-breakpoint
+ALTER TABLE "question_attempts" ADD COLUMN "category" "mistake_category";

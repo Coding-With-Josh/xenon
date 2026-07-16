@@ -1,0 +1,1 @@
+ALTER TYPE "public"."flow_status" ADD VALUE 'abandoned';

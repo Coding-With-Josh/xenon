@@ -8,6 +8,7 @@ import {
   pgEnum,
   boolean,
   primaryKey,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // Class levels: JSS1–JSS3, SS1–SS3
@@ -40,6 +41,35 @@ export const uploadTypeEnum = pgEnum("upload_type", ["pdf", "image", "video"]);
 
 // Session types (quiz vs exam)
 export const sessionTypeEnum = pgEnum("session_type", ["quiz", "exam"]);
+
+// Mistake review status
+export const mistakeStatusEnum = pgEnum("mistake_status", [
+  "outstanding",
+  "in_review",
+  "resolved",
+]);
+
+// Mistake category (what kind of error)
+export const mistakeCategoryEnum = pgEnum("mistake_category", [
+  "concept",
+  "calculation",
+  "formula",
+  "reading",
+  "careless",
+]);
+
+// Flow stage within a Xenon Flow session
+export const flowStageEnum = pgEnum("flow_stage", [
+  "hook",
+  "notes",
+  "microcheck",
+  "quiz",
+  "remediation",
+  "mastery",
+]);
+
+// Flow session status
+export const flowStatusEnum = pgEnum("flow_status", ["in_progress", "completed", "abandoned"]);
 
 // --- NextAuth tables (compatible with @auth/drizzle-adapter) ---
 export const users = pgTable("users", {
@@ -95,14 +125,21 @@ export const verificationTokens = pgTable("verification_tokens", {
 });
 
 // --- Curriculum: subject → topic → subtopics → class level ---
-export const curriculum = pgTable("curriculum", {
-  id: serial("id").primaryKey(),
-  subject: subjectsEnum("subject").notNull(),
-  topic: text("topic").notNull(),
-  subtopics: json("subtopics").$type<string[]>().default([]),
-  classLevels: json("class_levels").$type<string[]>().notNull(), // e.g. ["SS1", "SS2"]
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-});
+export const curriculum = pgTable(
+  "curriculum",
+  {
+    id: serial("id").primaryKey(),
+    subject: subjectsEnum("subject").notNull(),
+    topic: text("topic").notNull(),
+    subtopics: json("subtopics").$type<string[]>().default([]),
+    classLevels: json("class_levels").$type<string[]>().notNull(), // e.g. ["SS1", "SS2"]
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (t) => [
+    // Prevent duplicate (subject, topic) rows — the seed must be idempotent.
+    uniqueIndex("curriculum_subject_topic_idx").on(t.subject, t.topic),
+  ]
+);
 
 export const studyPlans = pgTable("study_plans", {
   id: serial("id").primaryKey(),
@@ -162,6 +199,63 @@ export const questionAttempts = pgTable("question_attempts", {
   userAnswer: text("user_answer"),
   correct: boolean("correct").notNull(),
   explanation: text("explanation"),
+  // Xenon Flow fields
+  subjectId: text("subject_id"),
+  topicId: text("topic_id"),
+  subsectionId: text("subsection_id"),
+  status: mistakeStatusEnum("status").default("outstanding").notNull(),
+  category: mistakeCategoryEnum("category"),
+  attempts: integer("attempts").default(1).notNull(),
+  firstMissedAt: timestamp("first_missed_at", { mode: "date" }),
+  lastAttemptedAt: timestamp("last_attempted_at", { mode: "date" }),
+  resolvedAt: timestamp("resolved_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+// --- Xenon Flow sessions ---
+export const flowSessions = pgTable("flow_sessions", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  subject: text("subject").notNull(),
+  topic: text("topic").notNull(),
+  status: flowStatusEnum("status").default("in_progress").notNull(),
+  currentSubsectionIndex: integer("current_subsection_index").default(0).notNull(),
+  currentStage: flowStageEnum("current_stage").default("hook").notNull(),
+  totalSubsections: integer("total_subsections").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+  completedAt: timestamp("completed_at", { mode: "date" }),
+});
+
+// --- Flow stage progress (one row per completed stage per session) ---
+export const flowStageProgress = pgTable("flow_stage_progress", {
+  id: serial("id").primaryKey(),
+  sessionId: integer("session_id")
+    .notNull()
+    .references(() => flowSessions.id, { onDelete: "cascade" }),
+  stage: flowStageEnum("stage").notNull(),
+  subsectionIndex: integer("subsection_index"), // null for quiz/remediation/mastery
+  completed: boolean("completed").default(false).notNull(),
+  data: json("data").$type<Record<string, unknown>>().default({}),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+// --- Spaced repetition review schedule ---
+export const spacedReview = pgTable("spaced_review", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  subject: text("subject").notNull(),
+  topic: text("topic").notNull(),
+  subsectionId: text("subsection_id"),
+  reviewAt: timestamp("review_at", { mode: "date" }).notNull(),
+  interval: integer("interval").notNull(), // days
+  lastReviewedAt: timestamp("last_reviewed_at", { mode: "date" }),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 

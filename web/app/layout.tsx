@@ -1,4 +1,4 @@
-import { Geist_Mono, Instrument_Serif } from "next/font/google"
+import { Geist_Mono } from "next/font/google"
 import localFont from "next/font/local"
 
 import "./globals.css"
@@ -24,7 +24,16 @@ const sfProRounded = localFont({
   display: "swap",
   preload: true,
 })
-const serif = Instrument_Serif({ subsets: ['latin'], variable: '--font-serif', weight: ['400'] })
+const serif = localFont({
+  src: [
+    { path: "../assets/Lora/Lora-VariableFont_wght.ttf", weight: "400 700", style: "normal" },
+    { path: "../assets/Lora/Lora-Italic-VariableFont_wght.ttf", weight: "400 700", style: "italic" },
+  ],
+  variable: "--font-serif",
+  display: "swap",
+  preload: true,
+})
+
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],

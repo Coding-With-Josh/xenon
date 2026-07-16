@@ -103,10 +103,15 @@ export function buildDynamicQuizPrompt(
   numQuestions: number,
   curriculumContext: CurriculumTopic[],
   difficulty: string,
-  type: string
+  type: string,
+  existingTopics?: string[]
 ): string {
   const curriculumText = formatCurriculumForPrompt(curriculumContext);
   const isTheory = type === "theory" || type === "mixed";
+
+  const repetitionWarning = existingTopics && existingTopics.length > 0
+    ? `\nCRITICAL: Questions already generated (DO NOT repeat any of these):\n${existingTopics.map((t) => `- ${t}`).join("\n")}\n`
+    : "";
 
   return `You are an expert tutor for Nigerian secondary school science students preparing for WAEC and JAMB.
 
@@ -120,9 +125,9 @@ ${curriculumText ? `Relevant curriculum:\n${curriculumText}\n` : ""}
 
 Topic or request: ${topicOrPrompt}
 
-Generate exactly ${numQuestions} WAEC/JAMB-style questions. 
+Generate exactly ${numQuestions} WAEC/JAMB-style questions. Each question must be UNIQUE — do NOT repeat questions across this or any prior batch.
 ${type === 'mixed' ? 'Mix objective (multiple choice) and theory questions.' : `Generate ONLY ${type} questions.`}
-
+${repetitionWarning}
 For each question, follow this JSON structure:
 - If objective:
   {
@@ -268,13 +273,153 @@ Be concise, clear, and exam-focused. When generating notes or questions, use mar
 export function buildExplanationPrompt(
   question: string,
   correctAnswer: string,
-  studentAnswer: string
+  studentAnswer: string,
+  subsectionContext?: string
 ): string {
+  let contextBlock = "";
+  if (subsectionContext) {
+    contextBlock = `\nRelevant subsection context: ${subsectionContext}\n`;
+  }
   return `A student answered a practice question incorrectly. Generate a brief, helpful explanation.
 
 Question: ${question}
 Correct answer: ${correctAnswer}
 Student's answer: ${studentAnswer}
-
+${contextBlock}
 In 2-4 sentences: explain why the correct answer is right, what misconception the student might have had, and suggest a key point to remember. Be encouraging.`;
+}
+
+/**
+ * Build a prompt for the Hook stage — why this topic matters for WAEC/JAMB.
+ */
+export function buildHookPrompt(
+  topic: string,
+  subject: string,
+  classLevel: ClassLevel,
+  curriculumContext: CurriculumTopic[]
+): string {
+  const curriculumText = formatCurriculumForPrompt(curriculumContext);
+  return `You are an expert tutor for Nigerian secondary school science students preparing for WAEC and JAMB.
+
+Context: ${EXAM_CONTEXT}
+Class level: ${classLevel}
+Subject: ${subject}
+Topic: ${topic}
+
+${curriculumText ? `Relevant curriculum:\n${curriculumText}\n` : ""}
+
+Write a short, motivating hook (1-2 sentences) explaining why "${topic}" matters for the student's WAEC/JAMB exam. Include:
+1. Why this topic is important — where it commonly appears in the exam
+2. A confidence-building line that makes the student feel ready to learn it
+
+Output only the hook text — no labels, no markdown. Keep it to 2-3 sentences maximum.`;
+}
+
+/**
+ * Build prompt for generating notes for a single subsection.
+ */
+export function buildSubsectionNotesPrompt(
+  topic: string,
+  subsectionName: string,
+  classLevel: ClassLevel,
+  curriculumContext: CurriculumTopic[]
+): string {
+  const curriculumText = formatCurriculumForPrompt(curriculumContext);
+  return `You are an expert tutor for Nigerian secondary school science students preparing for WAEC and JAMB.
+
+Context: ${EXAM_CONTEXT}
+Class level: ${classLevel}
+Topic: ${topic}
+Subsection: ${subsectionName}
+
+${curriculumText ? `Relevant curriculum:\n${curriculumText}\n` : ""}
+
+Generate focused study notes for the subsection "${subsectionName}" of the topic "${topic}". Include:
+1. Clear explanation of the core concept
+2. Key terms, formulas, or definitions
+3. Worked examples — include 2-3 step-by-step examples with calculations where applicable. For calculation topics (Physics formulas, Chemistry stoichiometry, etc.), at least 2 examples with full workings are essential.
+4. One exam tip specific to this subsection
+
+Format with markdown. Use LaTeX for formulas: $...$ for inline, $$...$$ for display.
+Output only the notes content for this subsection — no introduction, no summary, no "Section" label.`;
+}
+
+/**
+ * Build prompt for generating a micro-check (2-3 quick questions for a subsection).
+ */
+export function buildMicroCheckPrompt(
+  topic: string,
+  subsectionName: string,
+  classLevel: ClassLevel,
+  curriculumContext: CurriculumTopic[]
+): string {
+  const curriculumText = formatCurriculumForPrompt(curriculumContext);
+  return `You are an expert tutor for Nigerian secondary school science students preparing for WAEC and JAMB.
+
+Context: ${EXAM_CONTEXT}
+Class level: ${classLevel}
+Topic: ${topic}
+Subsection: ${subsectionName}
+
+${curriculumText ? `Relevant curriculum:\n${curriculumText}\n` : ""}
+
+Generate exactly 3 quick multiple-choice questions on the subsection "${subsectionName}" of "${topic}". These are pulse-check questions, not a full exam.
+
+For each question provide:
+1. "question": The question text
+2. "options": Array of 4 options (A, B, C, D)
+3. "correct": The letter of the correct answer
+4. "explanation": A one-sentence explanation
+
+Output ONLY a valid JSON array. No markdown code fences, no text before or after. Example:
+[{"question":"...","options":["A...","B...","C...","D..."],"correct":"A","explanation":"..."}]`;
+}
+
+/**
+ * Build prompt for the Mastery stage — exam tips, mnemonics, flashcards.
+ */
+export function buildMasteryPrompt(
+  topic: string,
+  subject: string,
+  classLevel: ClassLevel,
+  curriculumContext: CurriculumTopic[]
+): string {
+  const curriculumText = formatCurriculumForPrompt(curriculumContext);
+  return `You are an expert tutor for Nigerian secondary school science students preparing for WAEC and JAMB.
+
+Context: ${EXAM_CONTEXT}
+Class level: ${classLevel}
+Subject: ${subject}
+Topic: ${topic}
+
+${curriculumText ? `Relevant curriculum:\n${curriculumText}\n` : ""}
+
+Generate an exam mastery guide for "${topic}". Output ONLY a valid JSON object with this structure (no markdown, no code fences):
+
+{
+  "examTips": ["Tip 1", "Tip 2", "Tip 3"],
+  "memoryTechniques": [
+    { "mnemonic": "A catchy mnemonic or acronym", "explanation": "What it helps you remember and how to use it" }
+  ],
+  "abbreviations": [
+    { "abbr": "Short form", "meaning": "What it stands for", "context": "When/where to use it" }
+  ],
+  "shortcuts": [
+    { "title": "Quick method name", "description": "Step-by-step shortcut or trick for solving problems faster" }
+  ],
+  "keyFormulas": ["E.g., $F = ma$ — Newton's second law"],
+  "flashCards": [
+    { "front": "Question or term", "back": "Answer or definition" }
+  ]
+}
+
+Aim for:
+- 3-5 exam tips
+- 2-3 mnemonics
+- 3-5 abbreviations if applicable (fewer if the topic doesn't have many)
+- 2-3 shortcuts (calculation tricks, memory aids)
+- 5-6 key formulas
+- 8-10 flashcards covering the most important concepts, definitions, formulas, and common exam questions
+
+Make every tip, mnemonic, shortcut, and flashcard specific to "${topic}" — not generic study advice.`;
 }
