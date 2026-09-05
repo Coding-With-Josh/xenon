@@ -8,7 +8,7 @@ import {
   CheckListIcon,
   Quiz01Icon,
   GlobalRefreshIcon,
-  GraduationCapIcon,
+  GraduationCap,
   CheckmarkCircle01Icon,
   CircleLock01Icon,
   Menu01Icon,
@@ -77,7 +77,7 @@ function buildOrderedStages(
   if (showRemediation) {
     orderedStages.push({ key: "remediation", label: "Quick fix", icon: GlobalRefreshIcon });
   }
-  orderedStages.push({ key: "mastery", label: "Mastery", icon: GraduationCapIcon });
+  orderedStages.push({ key: "mastery", label: "Mastery", icon: GraduationCap });
 
   const extendedOrder = ["notes", "microcheck", "quiz"];
   if (showRemediation) extendedOrder.push("remediation");
@@ -111,9 +111,9 @@ function StageList({
 
   return (
     <div className="border-l border-border pl-5 space-y-1">
-      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pb-2">
+      {/* <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider pb-2">
         Flow Progress
-      </p>
+      </p> */}
 
       {orderedStages.map((stage) => {
         const status = stageStatusExtended(stage.key, session, extendedOrder);
@@ -228,21 +228,26 @@ export function FlowSidePanel({ session, progress, subsections }: FlowSidePanelP
         <StageList session={session} progress={progress} subsections={subsections} />
       </aside>
 
-      {/* Mobile: collapsed summary chip → bottom sheet */}
-      <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-30">
+      {/* Mobile: a single reserved bottom band holding the quiet status
+          caption + the Flow's primary action button (rendered by the stage).
+          The caption is muted, text-only, and opens the full stage list as a
+          bottom sheet. No show/hide logic — it sits there the whole time. The
+          Flow page reserves padding-bottom equal to this band's height so
+          scrollable content never slides underneath it. */}
+      <div className="lg:hidden fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-[#f3f2f4] via-[#f3f2f4] to-transparent dark:from-black dark:via-black dark:to-transparent px-4 pb-3 pt-2">
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <button
               type="button"
-              className="flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-xs font-medium text-primary-foreground shadow-lg active:scale-[0.98] transition-transform min-h-[40px]"
+              className="flex w-full items-center justify-center gap-1.5 py-1 text-[11px] text-muted-foreground/70 hover:text-muted-foreground transition-colors"
             >
-              <HugeiconsIcon icon={Menu01Icon} size={16} />
-              <span className="max-w-[50vw] truncate">
+              <HugeiconsIcon icon={Menu01Icon} size={13} className="shrink-0" />
+              <span className="truncate">
                 {session.topic} · {currentStageLabel}
               </span>
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto">
+          <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto py-4 px-6">
             <SheetTitle className="text-sm font-semibold mb-3">Flow Progress</SheetTitle>
             <StageList session={session} progress={progress} subsections={subsections} />
           </SheetContent>

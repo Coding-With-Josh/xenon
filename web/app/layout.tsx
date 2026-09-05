@@ -6,6 +6,7 @@ import "katex/dist/katex.min.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SessionProvider } from "@/components/session-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { SoundProvider } from "@/components/sound-provider"
 import { cn } from "@/lib/utils";
 
 const sfProRounded = localFont({
@@ -59,7 +60,9 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <SessionProvider>
-            <TooltipProvider>{children}</TooltipProvider>
+            <SoundProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+            </SoundProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>

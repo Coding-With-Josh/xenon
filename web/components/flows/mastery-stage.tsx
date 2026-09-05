@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getStageData, type QuizData, type MasteryContent, type FlowStageProgress } from "@/lib/flows/types";
 import { Spinner } from "@/components/ui/spinner";
+import { play } from "cuelume";
 
 type MasteryStageProps = {
   progress: FlowStageProgress[];
@@ -82,6 +83,13 @@ export function MasteryStage({
       return next;
     });
   }, []);
+
+  const handleMarkComplete = useCallback(() => {
+    // A fuller, more resonant cue than per-question "success" — this is a
+    // genuinely bigger moment. setEnabled gate covers off/exam states.
+    play("bloom");
+    onAdvance();
+  }, [onAdvance]);
 
   if (generating) {
     return (
@@ -314,7 +322,7 @@ export function MasteryStage({
       {/* Continue */}
       <div className="flex justify-center pt-4 border-t border-border">
         <button
-          onClick={onAdvance}
+          onClick={handleMarkComplete}
           disabled={loading}
           className="rounded-lg bg-primary px-8 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 transition-colors"
         >

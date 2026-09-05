@@ -9,9 +9,10 @@ type FlowShellProps = {
   session: FlowSession;
   progress: FlowStageProgress[];
   subsections: { name: string; id: string }[];
+  className?: string;
 };
 
-export function FlowShell({ session: initialSession, progress: initialProgress, subsections }: FlowShellProps) {
+export function FlowShell({ session: initialSession, progress: initialProgress, subsections, className }: FlowShellProps) {
   const router = useRouter();
   const [session, setSession] = useState(initialSession);
   const [progress, setProgress] = useState(initialProgress);
@@ -110,7 +111,7 @@ export function FlowShell({ session: initialSession, progress: initialProgress, 
   }, [router]);
 
   return (
-    <div className="max-w-3xl space-y-6 animate-in fade-in duration-500">
+    <div className={`max-w-3xl space-y-6 animate-in fade-in duration-500 ${className ?? ""}`}>
       {/* Progress bar */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs text-muted-foreground">

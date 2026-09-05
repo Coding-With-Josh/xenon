@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useLayoutEffect } from "react";
 import { getStageData, type QuizData, type FlowQuestion, type FlowStageProgress } from "@/lib/flows/types";
 import { Spinner } from "@/components/ui/spinner";
+import { ExplanationText } from "./explanation-text";
+import { play } from "cuelume";
 
 type QuizStageProps = {
   subsectionIndex: number;
@@ -52,6 +54,8 @@ export function QuizStage({
       })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to generate quiz");
+          // Soft ambient cue: background generation finished while they read notes.
+          play("droplet");
           window.location.reload();
         })
         .catch((e) => {
@@ -63,6 +67,7 @@ export function QuizStage({
 
   const handleSelect = useCallback((questionId: string, option: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: option }));
+    play("tick");
   }, []);
 
   const handleSubmit = useCallback(async () => {
@@ -78,6 +83,11 @@ export function QuizStage({
       if (!res.ok) throw new Error(data.error ?? "Submission failed");
       setResult(data);
       setSubmitted(true);
+      // Final result: a pass (more than half) is celebrated with chime; a miss
+      // of the threshold gets the softer droplet. setEnabled gate covers
+      // off/exam states.
+      if (data.score > data.total / 2) play("chime");
+      else play("droplet");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to submit");
     } finally {
@@ -221,6 +231,7 @@ export function QuizStage({
           <button
             onClick={handleSubmit}
             disabled={!allAnswered || submitting}
+            data-cuelume-press
             className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 transition-colors"
           >
             {submitting ? <Spinner size={14} /> : "Submit answers"}
@@ -230,6 +241,7 @@ export function QuizStage({
         <div className="flex gap-3 pt-2">
           <button
             onClick={onAdvance}
+            data-cuelume-press
             className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 active:scale-[0.98] transition-colors"
           >
             {result && result.wrongAnswers.length > 0
@@ -259,11 +271,37 @@ function QuestionCard({
 }) {
   const optionLabels = ["A", "B", "C", "D"];
   const options = question.options ?? [];
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [singleCol, setSingleCol] = useState(false);
 
-  // Per-question runtime check (per the responsiveness plan): keep the 2x2 grid
-  // unless an option's text is long enough to risk uneven row heights.
-  const longOption = options.some((o) => o.replace(/^[A-D]\)\s*/, "").length > 60);
-  const gridCols = longOption ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2";
+  useEffect(() => {
+    // Droplet on a wrong answer (per explicit request). The correct-answer cue
+    // for the full quiz is the chime at the final pass/fail result, not per
+    // question, so per-question we only mark a miss. setEnabled gate covers
+    // off/exam states.
+    if (showResult && isCorrect === false) play("droplet");
+  }, [showResult, isCorrect]);
+
+  // Keep the 2x2 grid by default — including on mobile, since scanning speed
+  // matters most on phones. Fall back to a single column only when an option's
+  // *rendered* width can't sit comfortably in half the grid width. We measure
+  // actual pixel width (not a character count) so the 115% global font scaling
+  // is accounted for.
+  useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const measure = () => {
+      const buttons = Array.from(grid.querySelectorAll<HTMLButtonElement>("button"));
+      if (buttons.length === 0) return;
+      const maxOptWidth = Math.max(...buttons.map((b) => b.scrollWidth));
+      const gap = 8; // gap-2
+      const twoColWidth = (grid.clientWidth - gap) / 2;
+      setSingleCol(maxOptWidth > twoColWidth);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [options]);
 
   return (
     <div className="rounded-xl border p-5 space-y-3">
@@ -272,7 +310,7 @@ function QuestionCard({
         {question.question}
       </p>
 
-      <div className={`grid ${gridCols} gap-2`}>
+      <div ref={gridRef} className={`grid ${singleCol ? "grid-cols-1" : "grid-cols-2"} gap-2`}>
         {options.map((option, oi) => {
           const label = optionLabels[oi];
           const isSelected = selected?.toUpperCase().slice(0, 1) === label;
@@ -325,18 +363,18 @@ function QuestionCard({
 
       {showResult && (
         <div
-          className={`rounded-lg p-3 text-sm ${
+          className={`rounded-lg p-3 ${
             isCorrect
               ? "bg-green-500/5 text-green-700 dark:text-green-300"
               : "bg-amber-500/5 text-amber-700 dark:text-amber-300"
           }`}
         >
           {isCorrect ? (
-            <p>{question.explanation}</p>
+            <ExplanationText>{question.explanation}</ExplanationText>
           ) : (
             <div className="space-y-1">
               <p className="font-medium">Correct answer: {question.correct}</p>
-              <p>{question.explanation}</p>
+              <ExplanationText>{question.explanation}</ExplanationText>
             </div>
           )}
         </div>

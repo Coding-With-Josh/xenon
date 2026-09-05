@@ -10,6 +10,8 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { AudioBook01Icon } from "@hugeicons/core-free-icons";
 import { NotesShimmer } from "@/components/ui/shimmer";
 import { InlineExplainer } from "./inline-explainer";
+import { ExplanationText } from "./explanation-text";
+import { play } from "cuelume";
 
 const noteComponents: Components = {
   h1: ({ children }) => (
@@ -97,6 +99,16 @@ export function NotesStage({
   const [error, setError] = useState<string | null>(null);
   const [autoLoading, setAutoLoading] = useState(false);
   const autoTriggered = useRef(false);
+  const chimePlayed = useRef(false);
+
+  // Play a soft chime once when generated notes first appear (setEnabled gate
+  // covers off/exam states).
+  useEffect(() => {
+    if (content && !chimePlayed.current) {
+      chimePlayed.current = true;
+      play("chime");
+    }
+  }, [content]);
 
   useEffect(() => {
     if (!content && !loading && !autoTriggered.current) {
@@ -167,17 +179,11 @@ export function NotesStage({
       {loading || autoLoading ? (
         <NotesShimmer />
       ) : content ? (
-        <InlineExplainer subject={subject} topic={topic}>
-          <article className="max-w-none font-sans text-foreground">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[rehypeKatex]}
-              components={noteComponents}
-            >
-              {content}
-            </ReactMarkdown>
-          </article>
-        </InlineExplainer>
+    <InlineExplainer subject={subject} topic={topic}>
+      <article className="max-w-none font-sans text-foreground">
+        <ExplanationText>{content}</ExplanationText>
+      </article>
+    </InlineExplainer>
       ) : (
         <div className="rounded-xl border p-6 text-center space-y-4">
           <p className="text-muted-foreground text-sm">

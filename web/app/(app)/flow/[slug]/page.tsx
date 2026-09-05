@@ -55,10 +55,13 @@ export default async function FlowSessionPage({
   return (
     <div className="flex gap-8 h-full py-4">
       <div className="flex-1 min-w-0">
+        {/* pb-24 on mobile reserves space for the fixed bottom status band
+            (caption + action button) so content never scrolls underneath it. */}
         <FlowShell
           session={flowSession}
           progress={progress}
           subsections={subsections}
+          className="pb-24 lg:pb-0"
         />
       </div>
       <FlowSidePanel

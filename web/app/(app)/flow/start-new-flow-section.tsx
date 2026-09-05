@@ -90,12 +90,12 @@ export function StartNewFlowSection({
   const subjectBtnClass = (subject: string) => {
     const selected = selectedSubject === subject;
     if (isHero) {
-      return `rounded-lg border px-3 py-1.5 text-xs font-medium transition-all backdrop-blur-sm ${selected
+      return `min-h-[40px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-all backdrop-blur-sm ${selected
           ? "border-white/60 bg-white/20 text-white ring-1 ring-white/30"
           : "border-white/20 bg-white/8 text-white/70 hover:text-white hover:bg-white/15 hover:border-white/40"
         }`;
     }
-    return `rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${selected
+    return `min-h-[40px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${selected
         ? "border-primary bg-primary/5 text-primary ring-1 ring-primary/20"
         : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/50"
       }`;
@@ -106,18 +106,18 @@ export function StartNewFlowSection({
     const inProg = inProgressTopics.has(key);
     const selected = selectedTopic === entry.topic;
     if (inProg) {
-      return `rounded-lg border px-3 py-1.5 text-xs font-medium transition-all cursor-not-allowed line-through ${isHero
+      return `min-h-[40px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-all cursor-not-allowed line-through ${isHero
           ? "border-white/10 bg-white/5 text-white/40"
           : "border-border/50 bg-muted/30 text-muted-foreground/50"
         }`;
     }
     if (isHero) {
-      return `rounded-lg border px-3 py-1.5 text-xs font-medium transition-all backdrop-blur-sm ${selected
+      return `min-h-[40px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-all backdrop-blur-sm ${selected
           ? "border-white/60 bg-white/20 text-white ring-1 ring-white/30"
           : "border-white/20 bg-white/8 text-white/70 hover:text-white hover:bg-white/15 hover:border-white/40"
         }`;
     }
-    return `rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${selected
+    return `min-h-[40px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${selected
         ? "border-primary bg-primary/5 text-primary ring-1 ring-primary/20"
         : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/50"
       }`;

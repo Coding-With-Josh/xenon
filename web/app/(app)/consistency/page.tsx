@@ -3,14 +3,13 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getConsistency } from "@/lib/consistency";
 import { ConsistencyCalendarCard } from "./consistency-calendar-card";
+import { MilestonesList } from "./milestones-list";
 
 export default async function ConsistencyPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/login");
 
   const data = await getConsistency(session.user.id);
-
-  const reached = data.milestones.filter((m) => m.reached).length;
 
   return (
     <div className="space-y-8 pb-20">
@@ -64,38 +63,7 @@ export default async function ConsistencyPage() {
 
       {/* Milestones */}
       <section>
-        <h2 className="text-sm font-semibold text-foreground mb-3">
-          Milestones
-          <span className="text-muted-foreground font-normal ml-1">
-            ({reached}/{data.milestones.length})
-          </span>
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {data.milestones.map((m) => (
-            <div
-              key={m.id}
-              className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
-                m.reached
-                  ? "border-border bg-card"
-                  : "border-dashed border-border bg-muted/30 opacity-60"
-              }`}
-            >
-              <div>
-                <p className="text-sm font-medium">{m.label}</p>
-                {m.detail && (
-                  <p className="text-xs text-muted-foreground mt-0.5">{m.detail}</p>
-                )}
-              </div>
-              <span
-                className={`text-xs font-medium ${
-                  m.reached ? "text-foreground" : "text-muted-foreground"
-                }`}
-              >
-                {m.reached ? "Reached" : "—"}
-              </span>
-            </div>
-          ))}
-        </div>
+        <MilestonesList milestones={data.milestones} />
       </section>
     </div>
   );

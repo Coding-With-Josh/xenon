@@ -3,6 +3,8 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { getStageData, type MicroCheckData, type MicroCheckQuestion, type FlowStageProgress } from "@/lib/flows/types";
 import { MicroCheckShimmer } from "@/components/ui/shimmer";
+import { ExplanationText } from "./explanation-text";
+import { play } from "cuelume";
 
 type MicroCheckStageProps = {
   subsectionIndex: number;
@@ -67,6 +69,7 @@ export function MicroCheckStage({
       if (prev[questionId]) return prev;
       return { ...prev, [questionId]: option };
     });
+    play("tick");
   }, []);
 
   const allAnswered = questions ? questions.every((q) => answered[q.id]) : false;
@@ -183,6 +186,13 @@ function MicroCheckQuestionCard({
 }) {
   const optionLabels = ["A", "B", "C", "D"];
 
+  // Sound reinforces a correct answer only — silence on a miss keeps the
+  // moment neutral (progress, not punishment). Cuelume's setEnabled gate
+  // already makes this a no-op when sound is off or inside Exam Simulation.
+  useEffect(() => {
+    if (answered && correct) play("chime");
+  }, [answered, correct]);
+
   return (
     <div className="rounded-xl border p-5 space-y-3">
       <p className="text-sm font-medium leading-relaxed">
@@ -243,18 +253,18 @@ function MicroCheckQuestionCard({
 
       {answered && (
         <div
-          className={`rounded-lg p-3 text-sm ${
+          className={`rounded-lg p-3 ${
             correct
               ? "bg-green-500/5 text-green-700 dark:text-green-300"
               : "bg-amber-500/5 text-amber-700 dark:text-amber-300"
           }`}
         >
           {correct ? (
-            <p>{question.explanation}</p>
+            <ExplanationText>{question.explanation}</ExplanationText>
           ) : (
             <div className="space-y-1">
               <p className="font-medium">Correct answer: {question.correct}</p>
-              <p>{question.explanation}</p>
+              <ExplanationText>{question.explanation}</ExplanationText>
             </div>
           )}
         </div>

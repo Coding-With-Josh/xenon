@@ -104,6 +104,38 @@
 - `/api/flows/[id]/mastery` — generates mastery guide content.
 - `/api/explain` — inline explainer text selection endpoint.
 
+## Mobile Responsiveness (breakpoints: <640 mobile / 640–1023 tablet / ≥1024 desktop)
+
+### Shell
+- `components/blocks/sidebar.tsx` — collapses to icon-only on tablet (`w-16 lg:w-[15rem]`, labels `hidden lg:inline`); `forceExpanded` prop renders full sidebar inside the mobile drawer.
+- `components/blocks/mobile-top-bar.tsx` (new) — fixed top bar shown only `<640px` (`sm:hidden`): hamburger `SheetTrigger` opens the full sidebar as a left slide-over drawer; persistent Command-Center search trigger is the primary mobile nav.
+- `app/(app)/layout.tsx` — hides persistent sidebar on mobile, adds top padding (`pt-20 sm:pt-10`) to clear the mobile top bar.
+
+### Flow side panel (Section 3 decision)
+- `components/flows/flow-side-panel.tsx` — desktop/tablet keep persistent right column; mobile uses a **quiet status caption → bottom sheet**.
+- **Single reserved bottom band** (`fixed inset-x-0 bottom-0`, mobile only): a muted, text-only caption (e.g. "Isotopes · Notes") that opens the full stage list as a bottom sheet. No pill styling, no show/hide logic — it sits there quietly the whole session, paired with the page's primary action button which also lives at the bottom edge. Because the caption isn't competing for first-glance attention at the top, nothing else on the page duplicates it, so it can be constant rather than fading in/out.
+- The Flow page (`flow/[slug]/page.tsx`) passes `pb-24 lg:pb-0` to `FlowShell` so scrollable content permanently reserves space equal to the band's height and never slides underneath it. `FlowShell` gained an optional `className` prop to carry this.
+
+### Dashboard
+- `app/(app)/dashboard/recent-sessions-table.tsx` — card-per-row layout on mobile, full table ≥640px.
+- Metrics grid was already `sm:grid-cols-2 lg:grid-cols-3`; hero card full-width.
+
+### My Flows
+- `app/(app)/flow/flow-row.tsx` — rows stack on mobile (subject+stage on top, Resume/Restart/Clear as full-width button pair); all actions `min-h-[40px]`.
+
+### Consistency
+- `app/(app)/consistency/consistency-calendar-card.tsx` (new) — mobile shows a 4-week window by default with a "View all 12 weeks" expand button; tablet/desktop show the full 12-week grid. Stat cards already `grid-cols-1 sm:grid-cols-3`.
+
+### Flow stages
+- `components/flows/quiz-stage.tsx` — keeps 2×2 option grid on all widths; collapses to 1 column only via a runtime **rendered-width** measurement (`useLayoutEffect` comparing option `scrollWidth` to half grid width), which correctly accounts for the 115% global font scaling. Mastery tabs already `overflow-x-auto`.
+
+### Global rules
+- 40px min touch targets applied to: flow-row buttons, calendar expand button, mobile side-panel chip, My Flows subject/topic chip picker (`min-h-[40px]`), Tools rows (`min-h-[56px]`). 115% scaling preserved in `globals.css`.
+
+### Deliberate simplifications (for the record)
+- Tablet tier for Recent Sessions / Consistency stat cards intentionally reuses the `sm:` (640px) desktop-style layout rather than a bespoke middle state (answer to the plan's open question 3: "simplify").
+- The My Flows "Clear" action (hard DELETE) is pre-existing behavior, not introduced by responsiveness work; flagged separately as a candidate to become archive-vs-delete per decision 4.1.
+
 ## Dependencies Added
 - `cmdk` — command palette component.
 

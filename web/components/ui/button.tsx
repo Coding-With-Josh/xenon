@@ -51,11 +51,16 @@ function Button({
   }) {
   const Comp = asChild ? Slot.Root : "button"
 
+  // Toggle switches opt out: they carry data-cuelume-toggle where used, and
+  // pairing press/release with a toggle click double-fires the cue.
+  const isSwitch = props.role === "switch"
+
   return (
     <Comp
       data-slot="button"
       data-variant={variant}
       data-size={size}
+      {...(isSwitch ? {} : { "data-cuelume-press": "", "data-cuelume-release": "" })}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />

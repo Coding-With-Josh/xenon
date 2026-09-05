@@ -81,7 +81,7 @@ export function ToolsGrid() {
           <Link
             key={tool.title}
             href={tool.href}
-            className={`group relative flex items-center gap-4 rounded-xl border border-border ${tool.accent} border-l-[3px] bg-gradient-to-r from-transparent via-transparent to-muted/10 p-4 transition-all duration-200 hover:bg-muted/20 active:scale-[0.98]`}
+            className={`group relative flex items-center gap-4 rounded-xl border border-border ${tool.accent} border-l-[3px] bg-gradient-to-r from-transparent via-transparent to-muted/10 p-4 min-h-[56px] transition-all duration-200 hover:bg-muted/20 active:scale-[0.98]`}
             style={{ textDecoration: "none" }}
           >
             <span

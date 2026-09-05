@@ -22,7 +22,7 @@ import {
   Search,
   BoltIcon,
   Rocket01Icon,
-  GraduationCapIcon,
+  GraduationCap,
 } from "@hugeicons/core-free-icons";
 
 const navigateItems = [
@@ -44,7 +44,7 @@ const navigateItems = [
 const actionItems = [
   { label: "Generate Quiz", action: "generate-quiz", icon: BoltIcon },
   { label: "Start Study Plan", action: "start-study-plan", icon: Rocket01Icon },
-  { label: "Take Exam", action: "take-exam", icon: GraduationCapIcon },
+  { label: "Take Exam", action: "take-exam", icon: GraduationCap },
 ];
 
 type CommandCenterProps = {

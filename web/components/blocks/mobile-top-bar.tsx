@@ -23,7 +23,7 @@ export function MobileTopBar() {
             <HugeiconsIcon icon={Menu01Icon} className="text-neutral-700 dark:text-neutral-200" size={20} strokeWidth={2.5} />
           </button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-72 p-0">
+        <SheetContent side="left" className="w-72 p-0 pb-6">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           <div className="h-full overflow-y-auto pt-4">
             <Sidebar forceExpanded onNavigate={() => setDrawerOpen(false)} />
